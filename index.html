@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>BitBike-CRM | מערכת ניהול חכמה לחנויות אופניים וקורקינטים</title>
+    <meta name="description" content="BitBike-CRM עוזרת לחנויות אופניים וקורקינטים לנהל לקוחות, תיקונים ומלאי בקלות. הפוך בלגן של ניירת ליעילות דיגיטלית.">
+    <meta name="keywords" content="ניהול חנות אופניים, מעקב תיקונים, CRM לתיקון אופניים, מערכת ניהול חנות">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind CSS הגדרות מותאמות -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Merriweather', 'serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#F0F7FF',
+                            100: '#E0EFFF',
+                            200: '#BBD8FF',
+                            300: '#8CBDFF',
+                            400: '#5EA1FF',
+                            500: '#1E90FF', // כחול חשמלי - צבע בסיס
+                            600: '#1879D7',
+                            700: '#1268B3',
+                            800: '#0D4F8A',
+                            900: '#1A2A44', // כחול נייבי
+                        },
+                        accent: {
+                            50: '#F5F3FF',
+                            100: '#EDE9FE',
+                            200: '#DDD6FE',
+                            300: '#C4B5FD',
+                            400: '#A78BFA',
+                            500: '#8B5CF6', // סגול/ויולט - צבע בסיס חדש
+                            600: '#7C3AED',
+                            700: '#6D28D9',
+                            800: '#5B21B6',
+                            900: '#4C1D95'
+                        },
+                        bg: {
+                            light: '#F1F8FF', // רקע בהיר
+                            dark: '#121A2D',  // רקע כהה
+                        },
+                        text: {
+                            light: '#FFFFFF', // טקסט בהיר
+                            dark: '#2F2F2F',  // טקסט כהה
+                        }
+                    },
+                    borderRadius: {
+                        'xl': '0.75rem',
+                        '2xl': '1rem',
+                        '3xl': '1.5rem',
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 12px rgba(0, 0, 0, 0.05)',
+                        'medium': '0 6px 16px rgba(0, 0, 0, 0.08)',
+                        'hard': '0 10px 24px rgba(0, 0, 0, 0.12)',
+                        'accent': '0 8px 16px rgba(249, 115, 22, 0.25)',
+                        'primary': '0 8px 16px rgba(30, 144, 255, 0.25)',
+                    },
+                    animation: {
+                        'float': 'float 5s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'spin-slow': 'spin 8s linear infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        pulse: {
+                            '0%, 100%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(1.05)' },
+                        },
+                        spin: {
+                            '0%': { transform: 'rotate(0deg)' },
+                            '100%': { transform: 'rotate(360deg)' },
+                        },
+                    },
+                    typography: {
+                        DEFAULT: {
+                            css: {
+                                maxWidth: '65ch',
+                                color: '#2F2F2F',
+                                p: {
+                                    lineHeight: '1.75',
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            plugins: [],
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- GSAP Animation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
+    
+    <!-- Swiper.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    
+    <!-- Custom CSS -->
+    <style type="text/css">
+        /* ===== משתנים גלובליים ===== */
+        :root {
+            --gradient-primary: linear-gradient(135deg, #1E90FF, #1A2A44);
+            --gradient-accent: linear-gradient(135deg, #8B5CF6, #6D28D9);
+            --transition-main: all 0.2s ease-out;
+        }
+        
+        /* ===== רסטים כלליים ===== */
+        html {
+            scroll-behavior: auto !important;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F1F8FF;
+            color: #2F2F2F;
+            overflow-x: hidden;
+        }
+        
+        /* ===== מחלקות שימושיות ===== */
+        .bg-gradient-primary {
+            background: var(--gradient-primary);
+        }
+        
+        .bg-gradient-accent {
+            background: var(--gradient-accent);
+        }
+        
+        .bg-gradient-glass {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.2));
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .text-gradient-primary {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .text-gradient-accent {
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        /* ===== אפקטים ואנימציות ===== */
+        .btn-glow {
+            position: relative;
+            transition: var(--transition-main);
+            z-index: 1;
+        }
+        
+        .btn-glow::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 2px;
+            background: var(--gradient-accent);
+            mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            -webkit-mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            -webkit-mask-composite: xor;
+            opacity: 0;
+            transition: var(--transition-main);
+            z-index: -1;
+        }
+        
+        .btn-glow:hover::before {
+            opacity: 1;
+        }
+        
+        .btn-glow:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(139, 92, 246, 0.25);
+        }
+        
+        .card-hover {
+            transition: var(--transition-main);
+            z-index: 1;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 16px 30px rgba(30, 144, 255, 0.15);
+        }
+        
+        /* ===== סגנונות הורדה קטנה ===== */
+        section {
+            scroll-margin-top: 80px;
+        }
+        
+        /* ===== התאמה לעברית ===== */
+        .rtl-space-fix {
+            display: flex;
+            flex-direction: row-reverse;
+        }
+        
+        /* ===== אנימציות דף ===== */
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        /* ===== זוהי תחילת עיצובי הנאבבר ===== */
+        #navbar {
+            background: var(--gradient-primary);
+            transition: var(--transition-main);
+        }
+        
+        #navbar.scrolled {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* === תפריט מובייל === */
+        .hamburger-menu {
+            width: 30px;
+            height: 20px;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .hamburger-menu span {
+            display: block;
+            position: absolute;
+            height: 2px;
+            width: 100%;
+            background: white;
+            border-radius: 2px;
+            transition: var(--transition-main);
+        }
+        
+        .hamburger-menu span:nth-child(1) {
+            top: 0;
+        }
+        
+        .hamburger-menu span:nth-child(2) {
+            top: 9px;
+        }
+        
+        .hamburger-menu span:nth-child(3) {
+            top: 18px;
+        }
+        
+        .hamburger-menu.active span:nth-child(1) {
+            top: 9px;
+            transform: rotate(45deg);
+        }
+        
+        .hamburger-menu.active span:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .hamburger-menu.active span:nth-child(3) {
+            top: 9px;
+            transform: rotate(-45deg);
+        }
+        
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 100vh;
+            background: var(--gradient-primary);
+            transform: translateX(100%);
+            transition: transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+            z-index: 50;
+            box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .mobile-menu.active {
+            transform: translateX(0);
+        }
+        
+        .mobile-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(3px);
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition-main);
+            z-index: 49;
+        }
+        
+        .mobile-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        @keyframes pulse-button {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .btn-primary {
+            animation: pulse-button 2s infinite;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .btn-primary:hover::after {
+            left: 100%;
+        }
+        
+        /* ===== Performance optimizations ===== */
+        .fade-in-up, .card-hover, #navbar, .btn-glow {
+            will-change: transform, opacity;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            transform: translateZ(0);
+            -webkit-font-smoothing: subpixel-antialiased;
+        }
+    </style>
+</head>
+<body>
+    <!-- נאבבר -->
+    <header id="navbar" class="fixed w-full top-0 z-50">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <!-- לוגו (משמאל בעברית) -->
+                <div class="order-last">
+                    <a href="#" class="flex items-center">
+                        <span class="font-bold text-xl text-white ml-2">BitBike</span>
+                        <span class="bg-accent-500 text-white text-xs py-1 px-2 rounded">CRM</span>
+                    </a>
+                </div>
+                
+                <!-- כפתור תפריט מובייל (מימין בעברית) -->
+                <div class="order-first block md:hidden">
+                    <div class="hamburger-menu">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+                
+                <!-- תפריט ניווט ראשי (ממורכז) -->
+                <nav class="hidden md:flex order-first rtl-space-fix">
+                    <ul class="flex space-x-8 space-x-reverse">
+                        <li>
+                            <a href="#features" class="text-white hover:text-accent-200 font-medium transition-all py-1 border-b-2 border-transparent hover:border-accent-500">תכונות</a>
+                        </li>
+                        <li>
+                            <a href="#how-it-works" class="text-white hover:text-accent-200 font-medium transition-all py-1 border-b-2 border-transparent hover:border-accent-500">איך זה עובד</a>
+                        </li>
+                        <li>
+                            <a href="#why-us" class="text-white hover:text-accent-200 font-medium transition-all py-1 border-b-2 border-transparent hover:border-accent-500">למה אנחנו</a>
+                        </li>
+                        <li>
+                            <a href="#pricing" class="text-white hover:text-accent-200 font-medium transition-all py-1 border-b-2 border-transparent hover:border-accent-500">מחירים</a>
+                        </li>
+                        <li>
+                            <a href="#testimonials" class="text-white hover:text-accent-200 font-medium transition-all py-1 border-b-2 border-transparent hover:border-accent-500">המלצות</a>
+                        </li>
+                        <li>
+                            <a href="#faq" class="text-white hover:text-accent-200 font-medium transition-all py-1 border-b-2 border-transparent hover:border-accent-500">שאלות נפוצות</a>
+                        </li>
+                    </ul>
+                </nav>
+                
+                <!-- כפתור CTA -->
+                <div class="hidden md:block order-middle">
+                    <a href="#contact" class="btn-glow btn-primary bg-accent-500 hover:bg-accent-600 text-white font-semibold py-2 px-5 rounded-lg transition-all">
+                        התחל ניסיון חינם
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- תפריט מובייל -->
+    <div class="mobile-overlay"></div>
+    <div class="mobile-menu">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-8">
+                <a href="#" class="flex items-center">
+                    <span class="font-bold text-xl text-white ml-2">BitBike</span>
+                    <span class="bg-accent-500 text-white text-xs py-1 px-2 rounded">CRM</span>
+                </a>
+                <button class="mobile-close text-white text-xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <nav class="mb-8">
+                <ul class="space-y-4">
+                    <li>
+                        <a href="#features" class="mobile-link block text-white hover:text-accent-200 transition-all py-2 border-r-2 border-transparent hover:border-accent-500 pr-3">תכונות</a>
+                    </li>
+                    <li>
+                        <a href="#how-it-works" class="mobile-link block text-white hover:text-accent-200 transition-all py-2 border-r-2 border-transparent hover:border-accent-500 pr-3">איך זה עובד</a>
+                    </li>
+                    <li>
+                        <a href="#why-us" class="mobile-link block text-white hover:text-accent-200 transition-all py-2 border-r-2 border-transparent hover:border-accent-500 pr-3">למה אנחנו</a>
+                    </li>
+                    <li>
+                        <a href="#pricing" class="mobile-link block text-white hover:text-accent-200 transition-all py-2 border-r-2 border-transparent hover:border-accent-500 pr-3">מחירים</a>
+                    </li>
+                    <li>
+                        <a href="#testimonials" class="mobile-link block text-white hover:text-accent-200 transition-all py-2 border-r-2 border-transparent hover:border-accent-500 pr-3">המלצות</a>
+                    </li>
+                    <li>
+                        <a href="#faq" class="mobile-link block text-white hover:text-accent-200 transition-all py-2 border-r-2 border-transparent hover:border-accent-500 pr-3">שאלות נפוצות</a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <a href="#contact" class="btn-glow btn-primary bg-accent-500 hover:bg-accent-600 text-white font-semibold py-3 px-8 rounded-lg transition-all text-center sm:text-right">
+                התחל ניסיון חינם
+            </a>
+            
+            <div class="mt-10 pt-8 border-t border-primary-700/30">
+                <div class="flex justify-center space-x-6 space-x-reverse">
+                    <a href="#" class="text-white hover:text-accent-500 transition-all">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="text-white hover:text-accent-500 transition-all">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-white hover:text-accent-500 transition-all">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="text-white hover:text-accent-500 transition-all">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- סקציית הירו -->
+    <section id="hero" class="pt-36 pb-16 md:pt-40 md:pb-20 relative overflow-hidden">
+        <!-- צורות רקע מופשטות -->
+        <div class="absolute top-0 right-0 w-2/3 h-full bg-primary-500/5 rounded-bl-[100px] -z-10"></div>
+        <div class="absolute top-0 left-20 w-72 h-72 bg-accent-500/5 rounded-full blur-3xl -z-10"></div>
+        <div class="absolute -bottom-10 -right-10 w-72 h-72 bg-primary-500/10 rounded-full blur-3xl -z-10"></div>
+        
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <!-- תוכן טקסטואלי -->
+                <div class="fade-in-up">
+                    <div class="inline-block mb-4 px-3 py-1 bg-primary-500/10 rounded-full">
+                        <span class="flex items-center text-sm font-medium text-primary-700">
+                            <span class="w-2 h-2 bg-primary-500 rounded-full ml-2"></span>
+                            מערכת CRM מקצועית לחנויות אופניים
+                        </span>
+                    </div>
+                    
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+                        <span class="block mb-2">נהל את החנות שלך</span>
+                        <span class="text-gradient-primary">ללא נייר וללא מאמץ</span>
+                    </h1>
+                    
+                    <p class="text-lg text-gray-600 mb-8 max-w-xl">
+                        BitBike-CRM עוזרת לחנויות אופניים וקורקינטים לנהל לקוחות, תיקונים ומלאי בצורה דיגיטלית ויעילה. הפוך בלגן של ניירת למערכת מסודרת ופשוטה.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4 mb-10">
+                        <a href="#contact" class="btn-glow btn-primary bg-accent-500 hover:bg-accent-600 text-white font-semibold py-3 px-8 rounded-lg transition-all text-center sm:text-right">
+                            התחל ניסיון חינם
+                        </a>
+                        <a href="#how-it-works" class="flex items-center justify-center gap-2 text-primary-600 bg-white rounded-lg border border-gray-200 px-6 py-3 font-medium hover:bg-gray-50 transition-all text-center sm:text-right">
+                            <i class="fas fa-play-circle text-accent-500"></i>
+                            צפה בהדגמה
+                        </a>
+                    </div>
+                    
+                    <!-- מונים סטטיסטיים -->
+                    <div class="grid grid-cols-3 gap-4 text-center sm:text-right">
+                        <div>
+                            <div class="text-2xl font-bold text-primary-900">2,000+</div>
+                            <div class="text-sm text-gray-500">חנויות פעילות</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-primary-900">98%</div>
+                            <div class="text-sm text-gray-500">שביעות רצון</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-primary-900">24/7</div>
+                            <div class="text-sm text-gray-500">תמיכה טכנית</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- תמונת הירו -->
+                <div class="relative fade-in-up">
+                    <div class="absolute inset-0 -m-6 border-2 border-dashed border-primary-300 rounded-2xl rotate-3 -z-10"></div>
+                    <div class="bg-white rounded-2xl shadow-hard overflow-hidden relative">
+                        <img src="assets/images/dashborad.PNG" alt="BitBike-CRM Dashboard" class="w-full h-auto">
+                        
+                        <!-- צ'יפים של תכונות -->
+                        <div class="absolute -right-5 top-8 bg-white p-1 rounded-xl shadow-medium">
+                            <div class="bg-green-100 text-green-800 text-xs font-semibold py-1 px-3 rounded-lg flex items-center">
+                                <i class="fas fa-check-circle ml-1"></i>
+                                מעקב תיקונים חכם
+                            </div>
+                        </div>
+                        
+                        <div class="absolute -left-5 top-1/3 bg-white p-1 rounded-xl shadow-medium">
+                            <div class="bg-blue-100 text-blue-800 text-xs font-semibold py-1 px-3 rounded-lg flex items-center">
+                                <i class="fas fa-bell ml-1"></i>
+                                התראות אוטומטיות
+                            </div>
+                        </div>
+                        
+                        <div class="absolute -right-5 bottom-12 bg-white p-1 rounded-xl shadow-medium">
+                            <div class="bg-purple-100 text-purple-800 text-xs font-semibold py-1 px-3 rounded-lg flex items-center">
+                                <i class="fas fa-box ml-1"></i>
+                                ניהול מלאי מתקדם
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- לוגואים -->
+            <div class="mt-20 text-center fade-in-up">
+                <p class="text-sm text-gray-500 uppercase tracking-wider mb-6">חברות מובילות בענף סומכות עלינו</p>
+                <div class="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-60">
+                    <img src="assets/images/logo-1.png" alt="לוגו חברה 1" class="h-8" onerror="this.src='https://placehold.co/160x40?text=Logo+1'">
+                    <img src="assets/images/logo-2.png" alt="לוגו חברה 2" class="h-8" onerror="this.src='https://placehold.co/160x40?text=Logo+2'">
+                    <img src="assets/images/logo-3.png" alt="לוגו חברה 3" class="h-8" onerror="this.src='https://placehold.co/160x40?text=Logo+3'">
+                    <img src="assets/images/logo-4.png" alt="לוגו חברה 4" class="h-8" onerror="this.src='https://placehold.co/160x40?text=Logo+4'">
+                    <img src="assets/images/logo-5.png" alt="לוגו חברה 5" class="h-8" onerror="this.src='https://placehold.co/160x40?text=Logo+5'">
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- סקציית תכונות -->
+    <section id="features" class="py-16 md:py-24 bg-white relative overflow-hidden">
+        <!-- צורות רקע מופשטות -->
+        <div class="absolute top-20 left-0 w-72 h-72 bg-primary-500/5 rounded-full blur-3xl -z-10"></div>
+        <div class="absolute bottom-20 right-10 w-80 h-80 bg-accent-500/5 rounded-full blur-3xl -z-10"></div>
+        
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16 fade-in-up">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 text-primary-900">תכונות מתקדמות לניהול החנות שלך</h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                    BitBike-CRM כוללת את כל הכלים הדרושים לניהול יעיל של חנות אופניים וקורקינטים חשמליים, מתיקון ועד שירות לקוחות.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- כרטיס תכונה 1 -->
+                <div class="card-hover bg-white rounded-xl shadow-soft p-6 border border-gray-100 fade-in-up">
+                    <div class="w-16 h-16 mb-5 bg-primary-500/10 rounded-lg overflow-hidden">
+                        <img src="assets/images/notifcations.png" alt="ניהול תיקונים" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-primary-900">ניהול תיקונים</h3>
+                    <p class="text-gray-600 mb-4">
+                        עקוב אחר כל תיקון בקלות. נהל סטטוסים, הערות טכנאים, והתראות ללקוחות כשהתיקון מוכן.
+                    </p>
+                    <a href="#" class="inline-flex items-center text-accent-600 font-medium hover:text-accent-700 transition-all">
+                        קרא עוד
+                        <i class="fas fa-arrow-left mr-2 text-sm"></i>
+                    </a>
+                </div>
+                
+                <!-- כרטיס תכונה 2 -->
+                <div class="card-hover bg-white rounded-xl shadow-soft p-6 border border-gray-100 fade-in-up">
+                    <div class="w-16 h-16 mb-5 bg-accent-500/10 rounded-lg overflow-hidden">
+                        <img src="assets/images/addcustmer.png" alt="ניהול לקוחות" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-primary-900">ניהול לקוחות</h3>
+                    <p class="text-gray-600 mb-4">
+                        שמור על כל מידע הלקוחות במקום אחד, כולל היסטוריית רכישות, תיקונים, והעדפות אישיות.
+                    </p>
+                    <a href="#" class="inline-flex items-center text-accent-600 font-medium hover:text-accent-700 transition-all">
+                        קרא עוד
+                        <i class="fas fa-arrow-left mr-2 text-sm"></i>
+                    </a>
+                </div>
+                
+                <!-- כרטיס תכונה 3 -->
+                <div class="card-hover bg-white rounded-xl shadow-soft p-6 border border-gray-100 fade-in-up">
+                    <div class="w-16 h-16 mb-5 bg-primary-500/10 rounded-lg overflow-hidden">
+                        <img src="assets/images/inventory.png" alt="ניהול מלאי" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-primary-900">ניהול מלאי</h3>
+                    <p class="text-gray-600 mb-4">
+                        נהל את המלאי בקלות עם התראות על מוצרים שאוזלים, מעקב אחר הזמנות, ודוחות מכירות.
+                    </p>
+                    <a href="#" class="inline-flex items-center text-accent-600 font-medium hover:text-accent-700 transition-all">
+                        קרא עוד
+                        <i class="fas fa-arrow-left mr-2 text-sm"></i>
+                    </a>
+                </div>
+                
+                <!-- כרטיס תכונה 4 -->
+                <div class="card-hover bg-white rounded-xl shadow-soft p-6 border border-gray-100 fade-in-up">
+                    <div class="w-16 h-16 mb-5 bg-accent-500/10 rounded-lg overflow-hidden">
+                        <img src="assets/images/warrantiy.png" alt="תעודת אחריות" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-primary-900">תעודת אחריות</h3>
+                    <p class="text-gray-600 mb-4">
+                        צור ונהל תעודות אחריות דיגיטליות ללקוחות, כולל תזכורות לפני תפוגת האחריות.
+                    </p>
+                    <a href="#" class="inline-flex items-center text-accent-600 font-medium hover:text-accent-700 transition-all">
+                        קרא עוד
+                        <i class="fas fa-arrow-left mr-2 text-sm"></i>
+                    </a>
+                </div>
+                
+                <!-- כרטיס תכונה 5 -->
+                <div class="card-hover bg-white rounded-xl shadow-soft p-6 border border-gray-100 fade-in-up">
+                    <div class="w-16 h-16 mb-5 bg-primary-500/10 rounded-lg overflow-hidden">
+                        <img src="assets/images/reports.png" alt="דוחות ואנליטיקה" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-primary-900">דוחות ואנליטיקה</h3>
+                    <p class="text-gray-600 mb-4">
+                        קבל תובנות עסקיות חשובות עם דוחות מותאמים אישית על מכירות, תיקונים, וביצועי החנות.
+                    </p>
+                    <a href="#" class="inline-flex items-center text-accent-600 font-medium hover:text-accent-700 transition-all">
+                        קרא עוד
+                        <i class="fas fa-arrow-left mr-2 text-sm"></i>
+                    </a>
+                </div>
+                
+                <!-- כרטיס תכונה 6 -->
+                <div class="card-hover bg-white rounded-xl shadow-soft p-6 border border-gray-100 fade-in-up">
+                    <div class="w-16 h-16 mb-5 bg-accent-500/10 rounded-lg overflow-hidden">
+                        <img src="assets/images/notifcations.png" alt="התראות אוטומטיות" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-primary-900">התראות אוטומטיות <i class="fab fa-whatsapp text-green-500"></i></h3>
+                    <p class="text-gray-600 mb-4">
+                        שלח התראות אוטומטיות בוואטסאפ ללקוחות על מצב התיקון, הזמנות שהגיעו, ועדכוני שירות.
+                    </p>
+                    <a href="#" class="inline-flex items-center text-accent-600 font-medium hover:text-accent-700 transition-all">
+                        קרא עוד
+                        <i class="fas fa-arrow-left mr-2 text-sm"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="text-center mt-16 fade-in-up">
+                <a href="#contact" class="btn-glow btn-primary bg-accent-500 hover:bg-accent-600 text-white font-semibold py-3 px-8 rounded-lg transition-all inline-block">
+                    גלה את כל התכונות
+                </a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- סקציית איך זה עובד -->
+    <section id="how-it-works" class="py-16 md:py-24 bg-gradient-to-b from-white to-bg-light relative overflow-hidden">
+        <!-- צורות רקע מופשטות -->
+        <div class="absolute top-40 right-0 w-96 h-96 bg-primary-500/5 rounded-full blur-3xl -z-10"></div>
+        <div class="absolute -bottom-20 -left-20 w-80 h-80 bg-accent-500/5 rounded-full blur-3xl -z-10"></div>
+        
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16 fade-in-up">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 text-primary-900">איך <span class="text-gradient-primary">BitBike-CRM</span> עובד?</h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                    תהליך פשוט, יעיל ומהיר שיהפוך את ניהול החנות שלך לקל יותר משחשבת.
+                </p>
+            </div>
+            
+            <!-- מבנה צעדים ממוספרים -->
+            <div class="relative">
+                <!-- קו מחבר (מוצג רק במסכים בינוניים וגדולים) -->
+                <div class="hidden md:block absolute top-28 start-0 end-0 h-1 bg-gradient-to-r from-primary-300 via-accent-300 to-primary-300 transform z-0"></div>
+                
+                <div class="grid md:grid-cols-4 gap-10 relative z-10">
+                    <!-- צעד 1 -->
+                    <div class="card-hover bg-white rounded-xl shadow-soft p-6 border border-gray-100 text-center fade-in-up">
+                        <div class="w-16 h-16 mx-auto -mt-14 mb-6 bg-primary-500 text-white rounded-full flex items-center justify-center text-xl font-bold shadow-lg">1</div>
+                        <h3 class="text-xl font-semibold mb-3 text-primary-900">הזנת פרטי לקוח</h3>
+                        <p class="text-gray-600 mb-8">
+                            הוסף פרטי לקוח חדש או חפש לקוח קיים במערכת בכמה שניות.
+                        </p>
+                        <div class="h-48 mt-4 flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden">
+                            <img src="assets/images/addcustomer.png" alt="הזנת פרטי לקוח" class="h-full w-auto object-contain" onerror="this.src='assets/images/addcustmer.png'">
+                        </div>
+                    </div>
+                    
+                    <!-- צעד 2 -->
+                    <div class="card-hover bg-white rounded-xl shadow-soft p-6 pb-8 border border-gray-100 text-center fade-in-up">
+                        <div class="w-16 h-16 mx-auto -mt-14 mb-6 bg-accent-500 text-white rounded-full flex items-center justify-center text-xl font-bold shadow-lg">2</div>
+                        <h3 class="text-xl font-semibold mb-3 text-primary-900">פתיחת כרטיס תיקון</h3>
+                        <p class="text-gray-600 mb-8">
+                            צור כרטיס תיקון חדש, הוסף תיאור הבעיה ופרטי האופניים.
+                        </p>
+                        <div class="mt-auto h-60 flex items-center justify-center">
+                            <div class="bg-[#111B21] w-full max-w-[280px] rounded-2xl overflow-hidden shadow-lg">
+                                <div class="bg-[#075E54] text-white p-2 flex items-center">
+                                    <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center mr-2">
+                                        <i class="fas fa-bicycle text-white"></i>
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold">BitBike Service</div>
+                                        <div class="text-xs opacity-80">תיקון ושירות</div>
+                                    </div>
+                                </div>
+                                <div class="p-3">
+                                    <div class="bg-[#202C33] p-3 rounded-lg text-right relative my-1">
+                                        <div class="absolute top-0 right-0 w-0 h-0 border-8 border-transparent border-right-[#202C33] transform translate-x-1/4 -translate-y-1/2 rotate-45"></div>
+                                        <p class="text-white text-sm font-medium">שלום ישראל ישראלי 👋</p>
+                                        <p class="text-white text-sm">נפתח עבורך כרטיס תיקון מספר <span class="font-bold text-[#25D366]">#BK4892</span></p>
+                                        <p class="text-white text-sm mt-1">🚲 דגם: Super Monarch 500W</p>
+                                        <p class="text-white text-sm">🔧 תיקון: החלפת סוללה + בדיקת מערכת חשמלית</p>
+                                        <p class="text-white text-sm">⏱️ זמן משוער: 2-3 ימי עבודה</p>
+                                        <p class="text-white text-sm mt-2">נעדכן אותך כשהתיקון יושלם.</p>
+                                        <p class="text-gray-400 text-xs mt-1 text-left">12:18 ✓✓</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- צעד 3 -->
+                    <div class="card-hover bg-white rounded-xl shadow-soft p-6 border border-gray-100 text-center fade-in-up">
+                        <div class="w-16 h-16 mx-auto -mt-14 mb-6 bg-primary-500 text-white rounded-full flex items-center justify-center text-xl font-bold shadow-lg">3</div>
+                        <h3 class="text-xl font-semibold mb-3 text-primary-900">עדכון סטטוס ותיקון</h3>
+                        <p class="text-gray-600 mb-8">
+                            עדכן את סטטוס התיקון בזמן אמת והוסף הערות לאורך התהליך.
+                        </p>
+                        <div class="h-48 mt-4 flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden">
+                            <img src="assets/images/notifications.png" alt="עדכון סטטוס ותיקון" class="h-full w-auto object-contain" onerror="this.src='assets/images/notifcations.png'">
+                        </div>
+                    </div>
+                    
+                    <!-- צעד 4 -->
+                    <div class="card-hover bg-white rounded-xl shadow-soft p-6 pb-8 border border-gray-100 text-center fade-in-up">
+                        <div class="w-16 h-16 mx-auto -mt-14 mb-6 bg-accent-500 text-white rounded-full flex items-center justify-center text-xl font-bold shadow-lg">4</div>
+                        <h3 class="text-xl font-semibold mb-3 text-primary-900">התראות וסיום תיקון</h3>
+                        <p class="text-gray-600 mb-8">
+                            שלח התראות אוטומטיות ללקוח וסגור את התיקון עם תשלום.
+                        </p>
+                        <div class="mt-auto h-60 flex items-center justify-center">
+                            <div class="bg-[#111B21] w-full max-w-[280px] rounded-2xl overflow-hidden shadow-lg">
+                                <div class="bg-[#075E54] text-white p-2 flex items-center">
+                                    <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center mr-2">
+                                        <i class="fas fa-bicycle text-white"></i>
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold">BitBike Service</div>
+                                        <div class="text-xs opacity-80">תיקון ושירות</div>
+                                    </div>
+                                </div>
+                                <div class="p-3">
+                                    <div class="bg-[#202C33] p-3 rounded-lg text-right relative my-1">
+                                        <div class="absolute top-0 right-0 w-0 h-0 border-8 border-transparent border-right-[#202C33] transform translate-x-1/4 -translate-y-1/2 rotate-45"></div>
+                                        <p class="text-white text-sm font-medium">שלום ישראל ישראלי 🎉</p>
+                                        <p class="text-white text-sm">תיקון מספר <span class="font-bold text-[#25D366]">#BK4892</span> <span class="text-[#25D366] font-bold">הושלם!</span></p>
+                                        <p class="text-white text-sm mt-1">✅ האופניים החשמליים שלך מוכנים לאיסוף</p>
+                                        <p class="text-white text-sm">💰 סה"כ לתשלום: ₪850</p>
+                                        <p class="text-white text-sm">🕙 שעות פעילות: 09:00-19:00</p>
+                                        <p class="text-white text-sm mt-2">נשמח לראותך!</p>
+                                        <p class="text-gray-400 text-xs mt-1 text-left">10:20 ✓✓</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- מידע נוסף וכפתור CTA -->
+            <div class="mt-20 text-center fade-in-up">
+                <div class="max-w-4xl mx-auto bg-gradient-to-br from-primary-50 to-white rounded-2xl shadow-medium overflow-hidden border border-gray-100">
+                    <!-- כותרת הסקציה עם רקע -->
+                    <div class="bg-gradient-to-r from-primary-700 to-accent-700 py-6 px-8 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-full h-full opacity-10">
+                            <div class="absolute top-5 right-5 w-20 h-20 bg-white rounded-full blur-xl"></div>
+                            <div class="absolute bottom-5 left-10 w-32 h-32 bg-white rounded-full blur-xl"></div>
+                        </div>
+                        <h3 class="text-3xl font-bold text-white relative z-10">תכונות נוספות שתאהבו</h3>
+                    </div>
+                    
+                    <!-- תוכן הסקציה -->
+                    <div class="p-8">
+                        <p class="text-lg text-gray-600 mb-8 max-w-3xl mx-auto">
+                            מעבר לתהליך הבסיסי, המערכת כוללת ניהול מלאי, תעודות אחריות דיגיטליות, הודעות אוטומטיות ללקוחות, דוחות מפורטים ועוד.
+                        </p>
+                        
+                        <!-- מרכז מידע טכני - מודגש ובולט -->
+                        <div class="bg-gradient-to-r from-primary-100 to-accent-50 rounded-xl p-1 mb-10 transform hover:scale-105 transition-all duration-300 shadow-medium">
+                            <div class="bg-white rounded-xl p-6 flex flex-col md:flex-row gap-6 items-center relative overflow-hidden">
+                                <!-- אייקון צד -->
+                                <div class="md:w-1/4 flex justify-center">
+                                    <div class="w-full h-auto rounded-lg overflow-hidden shadow-medium cursor-pointer hover:shadow-lg transition-all" onclick="openImageModal('assets/images/knowldgebase.PNG')">
+                                        <img src="assets/images/knowldgebase.PNG" alt="מרכז מידע טכני" class="w-full h-auto object-cover transform hover:scale-105 transition-all">
+                                        <div class="bg-accent-500/80 text-white text-xs py-1 px-2 absolute bottom-1 right-1 rounded">
+                                            <i class="fas fa-search-plus mr-1"></i> לחץ להגדלה
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- תוכן צד -->
+                                <div class="md:w-3/4 text-right">
+                                    <h4 class="text-2xl font-bold text-primary-900 mb-3 flex items-center">
+                                        <i class="fas fa-book ml-2 text-accent-500"></i>
+                                        מרכז מידע טכני מקצועי
+                                    </h4>
+                                    <p class="text-gray-700 mb-4 text-lg">
+                                        גישה למאגר מידע עשיר המרכז <span class="font-bold text-accent-700">פתרונות לכל התקלות המורכבות</span> - הכל מאורגן לפי דגם וכלי, כולל סרטוני הדרכה וחומרים טכניים מקצועיים.
+                                    </p>
+                                    
+                                    <!-- יתרונות ב-bullets -->
+                                    <ul class="space-y-2 mb-4">
+                                        <li class="flex items-center text-gray-700">
+                                            <span class="w-5 h-5 bg-accent-500 rounded-full flex items-center justify-center mr-3 ml-2">
+                                                <i class="fas fa-check text-white text-xs"></i>
+                                            </span>
+                                            חסכו שעות של חיפוש ופתרו בעיות מורכבות תוך דקות
+                                        </li>
+                                        <li class="flex items-center text-gray-700">
+                                            <span class="w-5 h-5 bg-accent-500 rounded-full flex items-center justify-center mr-3 ml-2">
+                                                <i class="fas fa-check text-white text-xs"></i>
+                                            </span>
+                                            מידע טכני מפורט עם הוראות שלב אחר שלב
+                                        </li>
+                                        <li class="flex items-center text-gray-700">
+                                            <span class="w-5 h-5 bg-accent-500 rounded-full flex items-center justify-center mr-3 ml-2">
+                                                <i class="fas fa-check text-white text-xs"></i>
+                                            </span>
+                                            חיפוש חכם לפי דגם, רכיב או סימפטום של התקלה
+                                        </li>
+                                        <li class="flex items-center text-gray-700">
+                                            <span class="w-5 h-5 bg-accent-500 rounded-full flex items-center justify-center mr-3 ml-2">
+                                                <i class="fas fa-check text-white text-xs"></i>
+                                            </span>
+                                            <span class="flex items-center">סרטוני הדרכה HD <i class="fas fa-video text-accent-500 mr-1"></i> להבנה מהירה ופתרון תקלות קריטיות</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- כפתור CTA -->
+                        <a href="#contact" class="btn-glow btn-primary bg-accent-500 hover:bg-accent-600 text-white font-semibold py-3 px-8 rounded-lg transition-all inline-block">
+                            צפה בהדגמה מלאה
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- סקציית למה אנחנו -->
+    <section id="why-us" class="py-16 md:py-24 bg-white relative overflow-hidden">
+        <!-- צורות רקע מופשטות -->
+        <div class="absolute top-20 right-0 w-96 h-96 bg-primary-500/5 rounded-full blur-3xl -z-10"></div>
+        <div class="absolute -bottom-10 left-20 w-80 h-80 bg-accent-500/5 rounded-full blur-3xl -z-10"></div>
+        
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16 fade-in-up">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 text-primary-900">למה <span class="text-gradient-accent">אנחנו</span>?</h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                    חוויה חדשנית, מחירים הוגנים ומערכת שנוצרה במיוחד עבור חנויות אופניים וקורקינטים
+                </p>
+            </div>
+            
+            <div class="max-w-5xl mx-auto">
+                <!-- השוואה בין מסורתי לחדשני -->
+                <div class="grid md:grid-cols-2 gap-8 mb-16 fade-in-up">
+                    <!-- מערכות CRM מסורתיות -->
+                    <div class="bg-gray-50 rounded-xl p-6 border border-gray-200 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 bg-red-500 text-white px-6 py-1 transform rotate-0 translate-x-2 translate-y-6 uppercase text-xs font-bold">
+                            מערכות CRM מסורתיות
+                        </div>
+                        <div class="pt-14">
+                            <h3 class="text-xl font-bold mb-6 text-gray-700">ההתנהלות הישנה</h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start">
+                                    <i class="fas fa-times-circle text-red-500 mt-1 ml-3 text-lg"></i>
+                                    <div>
+                                        <span class="font-semibold block mb-1">עלויות הקמה והתאמה גבוהות</span>
+                                        <p class="text-gray-600 text-sm">עשרות אלפי שקלים לפני שהמערכת אפילו זמינה לשימוש</p>
+                                    </div>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-times-circle text-red-500 mt-1 ml-3 text-lg"></i>
+                                    <div>
+                                        <span class="font-semibold block mb-1">פונים לעסקים מכל התחומים</span>
+                                        <p class="text-gray-600 text-sm">דרישות מורכבות להתאמה עבור חנויות אופניים וקורקינטים</p>
+                                    </div>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-times-circle text-red-500 mt-1 ml-3 text-lg"></i>
+                                    <div>
+                                        <span class="font-semibold block mb-1">זמן הטמעה ארוך</span>
+                                        <p class="text-gray-600 text-sm">חודשים של למידה והטמעה לפני שהמערכת פועלת כראוי</p>
+                                    </div>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-times-circle text-red-500 mt-1 ml-3 text-lg"></i>
+                                    <div>
+                                        <span class="font-semibold block mb-1">תהליכי פיתוח והתאמה יקרים</span>
+                                        <p class="text-gray-600 text-sm">כל שינוי ובקשה כרוכים בעלויות גבוהות ותהליכים מורכבים</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- BitBike-CRM -->
+                    <div class="bg-gradient-to-br from-primary-50 to-white rounded-xl p-6 border border-accent-100 relative overflow-hidden shadow-medium">
+                        <div class="absolute top-0 right-0 bg-accent-500 text-white px-6 py-1 transform rotate-0 translate-x-2 translate-y-6 uppercase text-xs font-bold">
+                            BitBike-CRM
+                        </div>
+                        <div class="pt-14">
+                            <h3 class="text-xl font-bold mb-6 text-primary-900">הגישה החדשנית שלנו</h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-accent-500 mt-1 ml-3 text-lg"></i>
+                                    <div>
+                                        <span class="font-semibold block mb-1">ללא עלויות הקמה והתאמה גבוהות</span>
+                                        <p class="text-gray-600 text-sm">מחיר חודשי אחד וקבוע, ללא תשלומים נסתרים או עלויות התחלתיות</p>
+                                    </div>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-accent-500 mt-1 ml-3 text-lg"></i>
+                                    <div>
+                                        <span class="font-semibold block mb-1">מערכת מותאמת במיוחד לחנויות אופניים וקורקינטים</span>
+                                        <p class="text-gray-600 text-sm">נבנתה עם הבנה מעמיקה של הצרכים הייחודיים של חנויות בתחום</p>
+                                    </div>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-accent-500 mt-1 ml-3 text-lg"></i>
+                                    <div>
+                                        <span class="font-semibold block mb-1">מהיום הראשון מוכנה לעבודה</span>
+                                        <p class="text-gray-600 text-sm">הטמעה מהירה וידידותית, עם תבניות מוכנות מראש לשימוש מיידי</p>
+                                    </div>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-accent-500 mt-1 ml-3 text-lg"></i>
+                                    <div>
+                                        <span class="font-semibold block mb-1">התפתחות קבועה בזכות טכנולוגיות AI</span>
+                                        <p class="text-gray-600 text-sm">שילוב טכנולוגיות חדשניות מאפשר לנו לספק מערכת מתקדמת במחיר הוגן</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- מידע נוסף על הגישה שלנו -->
+                <div class="bg-gradient-to-r from-primary-600 to-primary-900 rounded-2xl p-8 text-white shadow-hard fade-in-up">
+                    <div class="flex flex-col md:flex-row gap-8 items-center">
+                        <div class="md:w-1/3">
+                            <div class="relative">
+                                <div class="w-32 h-32 bg-accent-500/30 rounded-full absolute -top-6 -right-6"></div>
+                                <div class="w-48 h-48 bg-white/10 rounded-full absolute -bottom-8 -left-8"></div>
+                                <div class="relative z-10 flex items-center justify-center">
+                                    <div class="w-36 h-36 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm">
+                                        <i class="fas fa-robot text-6xl text-white"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="md:w-2/3 text-right">
+                            <h3 class="text-2xl font-bold mb-4">כוחו של ה-AI בשירות חנויות האופניים</h3>
+                            <p class="text-primary-100 mb-4">
+                                עידן ה-AI שינה את כללי המשחק בעולם התוכנה. אנו ב-BitBike-CRM מנצלים את הטכנולוגיות המתקדמות ביותר כדי לספק מערכת חכמה, מותאמת ויעילה במחיר שפוי ונגיש לכל חנות.
+                            </p>
+                            <p class="text-primary-100 mb-6">
+                                בניגוד למערכות CRM מסורתיות שדורשות עלויות התאמה והטמעה גבוהות, האלגוריתמים החכמים שלנו מאפשרים לנו להציע פתרון יעיל, מתקדם ובמחיר הוגן - בלי להתפשר על איכות או פונקציונליות.
+                            </p>
+                            <div class="flex flex-wrap gap-4 justify-end">
+                                <div class="flex items-center bg-white/10 px-4 py-2 rounded-lg backdrop-blur-sm">
+                                    <span class="font-semibold">פיתוח יעיל ומהיר</span>
+                                    <div class="bg-accent-500 w-10 h-10 rounded-full flex items-center justify-center mr-3">
+                                        <i class="fas fa-bolt text-white"></i>
+                                    </div>
+                                </div>
+                                <div class="flex items-center bg-white/10 px-4 py-2 rounded-lg backdrop-blur-sm">
+                                    <span class="font-semibold">חיסכון משמעותי בעלויות</span>
+                                    <div class="bg-accent-500 w-10 h-10 rounded-full flex items-center justify-center mr-3">
+                                        <i class="fas fa-coins text-white"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- חזון החברה -->
+                <div class="mt-16 bg-white rounded-xl p-8 border border-gray-100 shadow-medium text-center max-w-4xl mx-auto fade-in-up">
+                    <div class="w-16 h-16 mx-auto bg-accent-500 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-heart text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 text-primary-900">המחויבות שלנו לענף האופניים והקורקינטים</h3>
+                    <p class="text-gray-600 mb-6">
+                        לקחנו על עצמנו לשנות את המצב בו חנויות אופניים וקורקינטים נאלצות לשלם עשרות אלפי שקלים עבור מערכות ניהול. המומחיות שלנו בתחום, יחד עם הטכנולוגיה המתקדמת, מאפשרות לנו להציע פתרון מקצועי במחיר שכל עסק יכול להרשות לעצמו.
+                    </p>
+                    <a href="#contact" class="btn-glow bg-accent-500 hover:bg-accent-600 text-white font-semibold py-3 px-8 rounded-lg transition-all inline-block">
+                        גלה את המחירים ההוגנים שלנו
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- סקציית מחירון -->
+    <section id="pricing" class="py-16 md:py-24 bg-bg-light relative overflow-hidden">
+        <!-- צורות רקע מופשטות משופרות -->
+        <div class="absolute top-40 left-0 w-96 h-96 bg-primary-500/10 rounded-full blur-3xl -z-10 animate-pulse-slow"></div>
+        <div class="absolute -top-20 right-20 w-64 h-64 bg-accent-500/10 rounded-full blur-3xl -z-10"></div>
+        <div class="absolute -bottom-20 right-0 w-80 h-80 bg-accent-500/10 rounded-full blur-3xl -z-10"></div>
+        <div class="absolute bottom-40 left-20 w-72 h-72 bg-primary-600/5 rounded-full blur-3xl -z-10"></div>
+        
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12 fade-in-up">
+                <span class="inline-block bg-primary-100 text-primary-800 text-sm font-semibold py-1 px-4 rounded-full mb-3">מחירים פשוטים, ערך גבוה</span>
+                <h2 class="text-3xl md:text-5xl font-bold mb-6 text-primary-900 relative inline-block">
+                    <span class="relative z-10">בחר את התוכנית המתאימה לעסק שלך</span>
+                    <span class="absolute bottom-2 left-0 w-full h-4 bg-accent-200 opacity-40 -z-0 skew-x-3"></span>
+                </h2>
+                <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+                    תוכניות מחירים שקופות, ללא עלויות נסתרות וללא התחייבות ארוכת טווח.
+                    <span class="block mt-2 font-medium text-primary-700">מצא את התוכנית המושלמת לצרכי החנות שלך!</span>
+                </p>
+            </div>
+            
+            <!-- תגית השוואה מעל הכרטיסים -->
+            <div class="flex justify-center mb-6 fade-in-up">
+                <div class="bg-white shadow-sm py-2 px-6 rounded-full border border-gray-200 flex items-center gap-2">
+                    <i class="fas fa-check-circle text-accent-500 ml-1"></i>
+                    <span class="text-gray-700">השוואה פשוטה</span>
+                    <span class="mx-2 text-gray-300">|</span>
+                    <i class="fas fa-unlock text-accent-500 ml-1"></i>
+                    <span class="text-gray-700">ללא התחייבות</span>
+                    <span class="mx-2 text-gray-300">|</span>
+                    <i class="fas fa-exchange-alt text-accent-500 ml-1"></i>
+                    <span class="text-gray-700">שדרוג/הורדת חבילה בכל עת</span>
+                </div>
+            </div>
+            
+            <!-- כרטיסי תמחור משופרים -->
+            <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                <!-- תוכנית בייסיק -->
+                <div class="card-hover bg-white rounded-xl shadow-soft border border-gray-100 overflow-hidden fade-in-up transition-all duration-300 hover:shadow-xl relative group">
+                    <!-- קישוט בכותרת -->
+                    <div class="h-2 bg-gradient-to-l from-primary-200 to-primary-400"></div>
+                    
+                    <div class="p-8 flex flex-col h-full">
+                        <div class="mb-8">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-2xl font-bold text-primary-900">בייסיק</h3>
+                                <span class="bg-primary-50 text-primary-700 text-xs font-semibold py-1 px-3 rounded-full">
+                                    לעסקים קטנים
+                                </span>
+                            </div>
+                            
+                            <div class="flex items-baseline mb-3">
+                                <span class="text-5xl font-bold text-primary-800">₪250</span>
+                                <span class="text-gray-500 mr-2">/ חודש</span>
+                            </div>
+                            
+                            <div class="flex items-center gap-2 bg-primary-50 p-2 rounded-lg text-sm">
+                                <i class="fas fa-tag text-accent-500"></i>
+                                <span class="text-primary-800">חיוב חודשי, ביטול בכל עת</span>
+                            </div>
+                        </div>
+                        
+                        <p class="font-medium text-gray-700 mb-4 border-b border-gray-100 pb-4">
+                            כל מה שצריך לניהול יעיל של העסק:
+                        </p>
+                        
+                        <ul class="space-y-4 mb-8">
+                            <li class="flex items-start text-gray-700">
+                                <i class="fas fa-check-circle text-green-500 ml-2 mt-1"></i>
+                                <span>ניהול לקוחות וכרטיסי תיקון<br/>
+                                <span class="text-sm text-gray-500">שליטה מלאה בלקוחות והיסטוריית התיקונים</span></span>
+                            </li>
+                            <li class="flex items-start text-gray-700">
+                                <i class="fas fa-check-circle text-green-500 ml-2 mt-1"></i>
+                                <span>ניהול מלאי ומעקב הזמנות<br/>
+                                <span class="text-sm text-gray-500">מעקב קל אחר רמות המלאי והזמנות</span></span>
+                            </li>
+                            <li class="flex items-start text-gray-700">
+                                <i class="fas fa-check-circle text-green-500 ml-2 mt-1"></i>
+                                <span>דוחות מכירות ותיקונים<br/>
+                                <span class="text-sm text-gray-500">תובנות עסקיות והתראות חכמות</span></span>
+                            </li>
+                            <li class="flex items-start text-gray-700">
+                                <i class="fas fa-check-circle text-green-500 ml-2 mt-1"></i>
+                                <span>תעודות אחריות דיגיטליות<br/>
+                                <span class="text-sm text-gray-500">שמירה ותיעוד אוטומטי של אחריות</span></span>
+                            </li>
+                            <li class="flex items-start text-gray-400">
+                                <i class="fas fa-times-circle text-red-400 ml-2 mt-1"></i>
+                                <span>התראות וואטסאפ אוטומטיות<br/>
+                                <span class="text-sm text-gray-400">זמין בחבילת פרו בלבד</span></span>
+                            </li>
+                        </ul>
+                        
+                        <div class="mt-auto">
+                            <a href="#contact" class="group-hover:bg-primary-50 block text-center bg-white border-2 border-primary-500 text-primary-700 hover:bg-primary-50 font-semibold py-4 px-6 rounded-lg transition-all">
+                                התחל ניסיון חינם
+                                <i class="fas fa-arrow-left mr-2"></i>
+                            </a>
+                            <p class="text-center text-sm text-gray-500 mt-3">
+                                30 יום ניסיון, ביטול בכל עת
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- תוכנית פרו -->
+                <div class="card-hover transform scale-[1.02] bg-gradient-to-br from-primary-700 to-primary-900 rounded-xl shadow-hard border border-primary-600 overflow-hidden relative fade-in-up transition-all duration-300 hover:shadow-2xl hover:scale-[1.03] group">
+                    <!-- קישוט בכותרת -->
+                    <div class="h-2 bg-gradient-to-l from-accent-400 to-accent-600"></div>
+                    
+                    <!-- תגית מומלץ משופרת -->
+                    <div class="absolute -top-1 left-8 bg-accent-500 text-white text-sm font-bold py-2 px-4 rounded-b-lg shadow-lg transform rotate-1 z-10">
+                        <div class="flex items-center gap-1">
+                            <i class="fas fa-crown mr-1"></i>
+                            מומלץ
+                            <i class="fas fa-crown ml-1"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="p-8 flex flex-col h-full relative">
+                        <!-- אלמנט עיטורי -->
+                        <div class="absolute top-0 right-0 opacity-10 w-48 h-48 -mt-16 -mr-16">
+                            <i class="fas fa-bicycle text-9xl text-white"></i>
+                        </div>
+                        
+                        <div class="mb-8 relative z-10">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-2xl font-bold text-white">פרו</h3>
+                                <span class="bg-accent-500/20 text-accent-100 text-xs font-semibold py-1 px-3 rounded-full">
+                                    לעסקים צומחים
+                                </span>
+                            </div>
+                            
+                            <div class="flex items-baseline mb-3">
+                                <span class="text-5xl font-bold text-white">₪320</span>
+                                <span class="text-primary-200 mr-2">/ חודש</span>
+                            </div>
+                            
+                            <div class="flex items-center gap-2 bg-white/10 backdrop-blur-sm p-2 rounded-lg text-sm">
+                                <i class="fas fa-tag text-accent-400"></i>
+                                <span class="text-white">חיוב חודשי, ביטול בכל עת</span>
+                            </div>
+                        </div>
+                        
+                        <p class="font-medium text-white mb-4 border-b border-primary-600/30 pb-4">
+                            כל התכונות של תוכנית בייסיק, בתוספת:
+                        </p>
+                        
+                        <ul class="space-y-4 mb-8 relative z-10">
+                            <li class="flex items-start text-white">
+                                <i class="fas fa-check-circle text-accent-400 ml-2 mt-1"></i>
+                                <span>כל התכונות של תוכנית הבייסיק<br/>
+                                <span class="text-sm text-primary-200">בסיס מוצק לניהול העסק</span></span>
+                            </li>
+                            <li class="flex items-start text-white">
+                                <i class="fas fa-check-circle text-accent-400 ml-2 mt-1"></i>
+                                <span class="flex items-center">התראות וואטסאפ אוטומטיות <i class="fab fa-whatsapp text-green-400 mr-1 ml-1"></i><br/>
+                                <span class="text-sm text-primary-200">עדכון אוטומטי ללקוחות על סטטוס תיקונים</span></span>
+                            </li>
+                            <li class="flex items-start text-white">
+                                <i class="fas fa-check-circle text-accent-400 ml-2 mt-1"></i>
+                                <span>תבניות הודעות מותאמות אישית<br/>
+                                <span class="text-sm text-primary-200">התאמת הודעות לצרכי העסק שלך</span></span>
+                            </li>
+                            <li class="flex items-start text-white">
+                                <i class="fas fa-check-circle text-accent-400 ml-2 mt-1"></i>
+                                <span>ניהול מתקדם של תחזוקה תקופתית<br/>
+                                <span class="text-sm text-primary-200">תזכורות אוטומטיות לטיפולים תקופתיים</span></span>
+                            </li>
+                            <li class="flex items-start text-white">
+                                <i class="fas fa-check-circle text-accent-400 ml-2 mt-1"></i>
+                                <span>תמיכה טכנית מועדפת<br/>
+                                <span class="text-sm text-primary-200">מענה מהיר לכל שאלה או בעיה</span></span>
+                            </li>
+                        </ul>
+                        
+                        <div class="mt-auto relative z-10">
+                            <a href="#contact" class="btn-glow btn-primary block text-center bg-accent-500 hover:bg-accent-600 text-white font-semibold py-4 px-6 rounded-lg transition-all">
+                                התחל ניסיון חינם
+                                <i class="fas fa-arrow-left mr-2"></i>
+                            </a>
+                            <p class="text-center text-sm text-primary-200 mt-3">
+                                30 יום ניסיון, ביטול בכל עת
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- הערת הניסיון החינמי - משופר -->
+            <div class="mt-16 mb-8 text-center fade-in-up">
+                <div class="bg-gradient-to-r from-accent-500 to-accent-700 rounded-3xl shadow-hard p-1 max-w-4xl mx-auto transform hover:scale-[1.02] transition-all duration-300 animate-pulse-slow">
+                    <div class="bg-white rounded-3xl p-8 relative overflow-hidden">
+                        <!-- Decorative elements -->
+                        <div class="absolute -top-20 -right-20 w-40 h-40 bg-accent-100 rounded-full blur-xl opacity-70"></div>
+                        <div class="absolute -bottom-20 -left-20 w-40 h-40 bg-primary-100 rounded-full blur-xl opacity-70"></div>
+                        
+                        <!-- אייקון מתנה ותוכן - סידור חדש -->
+                        <div class="flex flex-col md:flex-row items-center md:items-start gap-6 relative">
+                            <!-- אייקון מתנה משופר -->
+                            <div class="flex-shrink-0 md:mr-4 order-1 md:order-1 relative z-10">
+                                <div class="w-28 h-28 bg-gradient-to-br from-accent-400 to-accent-600 rounded-full flex items-center justify-center rotate-3 animate-float shadow-lg">
+                                    <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-inner">
+                                        <i class="fas fa-gift text-accent-500 text-4xl"></i>
+                                    </div>
+                                </div>
+                                <div class="absolute -bottom-2 -right-2 bg-accent-500 text-white text-xs font-bold p-1 px-2 rounded-full shadow-md border-2 border-white animate-pulse">
+                                    חינם!
+                                </div>
+                            </div>
+                            
+                            <!-- תוכן -->
+                            <div class="flex-grow order-2 md:order-2 md:text-right relative z-10">
+                                <h3 class="text-3xl font-bold text-primary-900 mb-4 relative inline-block">
+                                    <span class="relative z-10">30 יום ניסיון חינם!</span>
+                                    <span class="absolute bottom-1 left-0 w-full h-3 bg-accent-200 opacity-60 -z-0"></span>
+                                </h3>
+                                
+                                <p class="text-xl text-gray-700 mb-6 max-w-2xl mx-auto md:mx-0 md:ml-auto">
+                                    התחל ניסיון של 30 יום <span class="font-bold bg-accent-100 px-2 py-1 rounded-lg">ללא עלות וללא התחייבות</span>. קבל גישה מלאה לכל התכונות כולל התאמה אישית, הדרכה מקצועית ותמיכה טכנית - הכל עלינו!
+                                </p>
+                                
+                                <div class="flex items-center justify-center md:justify-end gap-4 flex-wrap mb-6">
+                                    <div class="bg-primary-50 p-3 rounded-xl flex items-center shadow-sm">
+                                        <i class="fas fa-check-circle text-primary-600 ml-2 text-xl"></i>
+                                        <span class="font-medium">התאמה אישית</span>
+                                    </div>
+                                    <div class="bg-primary-50 p-3 rounded-xl flex items-center shadow-sm">
+                                        <i class="fas fa-check-circle text-primary-600 ml-2 text-xl"></i>
+                                        <span class="font-medium">הדרכה מקצועית</span>
+                                    </div>
+                                    <div class="bg-primary-50 p-3 rounded-xl flex items-center shadow-sm">
+                                        <i class="fas fa-check-circle text-primary-600 ml-2 text-xl"></i>
+                                        <span class="font-medium">תמיכה טכנית</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-8 text-center md:text-right">
+                                    <a href="#contact" class="btn-glow btn-primary bg-accent-500 hover:bg-accent-600 text-white font-bold py-4 px-10 rounded-xl text-xl transition-all shadow-accent inline-block relative overflow-hidden border-2 border-accent-300">
+                                        <span class="relative z-10">התחל ניסיון חינם עכשיו!</span>
+                                    </a>
+                                </div>
+                                
+                                <div class="mt-6 flex flex-wrap justify-center md:justify-end gap-4 opacity-80">
+                                    <div class="flex items-center text-primary-700">
+                                        <i class="fas fa-shield-alt ml-2"></i>
+                                        <span class="text-sm">אבטחה מלאה</span>
+                                    </div>
+                                    <div class="flex items-center text-primary-700">
+                                        <i class="fas fa-sync-alt ml-2"></i>
+                                        <span class="text-sm">ביטול בכל עת</span>
+                                    </div>
+                                    <div class="flex items-center text-primary-700">
+                                        <i class="fas fa-credit-card ml-2"></i>
+                                        <span class="text-sm">ללא צורך בפרטי אשראי</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- סקשן שאלות ותשובות נפוצות אודות המחיר -->
+            <div id="faq" class="mt-16 mb-12 max-w-4xl mx-auto fade-in-up">
+                <div class="text-center mb-8">
+                    <span class="inline-block bg-primary-100 text-primary-800 text-sm font-semibold py-1 px-4 rounded-full mb-3">יש לך שאלות?</span>
+                    <h3 class="text-3xl font-bold text-primary-900 mb-3 relative inline-block">
+                        <span class="relative z-10">שאלות נפוצות</span>
+                        <span class="absolute bottom-1 left-0 w-full h-3 bg-accent-200 opacity-40 -z-0 skew-x-3"></span>
+                    </h3>
+                    <p class="text-gray-600 max-w-2xl mx-auto">
+                        אלו התשובות לשאלות הנפוצות ביותר. אם יש לך שאלה נוספת, אל תהסס לפנות אלינו!
+                    </p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div class="bg-white rounded-xl shadow-soft border border-gray-100 overflow-hidden hover:border-accent-200 transition-all duration-300 group">
+                            <details class="group">
+                                <summary class="flex justify-between items-center p-5 cursor-pointer font-medium text-primary-800">
+                                    <div class="flex items-center">
+                                        <span class="bg-primary-100 text-primary-600 w-8 h-8 rounded-full flex items-center justify-center mr-3">
+                                            <i class="fas fa-file-contract"></i>
+                                        </span>
+                                        <span>האם יש חוזה ארוך טווח או התחייבות?</span>
+                                    </div>
+                                    <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 group-open:bg-accent-100 transition-colors">
+                                        <i class="fas fa-plus text-accent-500 text-sm group-open:hidden"></i>
+                                        <i class="fas fa-minus text-accent-600 text-sm hidden group-open:block"></i>
+                                    </div>
+                                </summary>
+                                <div class="p-5 pt-0 text-gray-700">
+                                    <div class="border-t border-gray-100 pt-4 mt-2">
+                                        לא, אין התחייבות ארוכת טווח. אתה יכול לבטל את המנוי בכל עת וללא קנסות. 
+                                        אנחנו מאמינים שהלקוחות שלנו צריכים להישאר איתנו בזכות איכות המוצר ולא בגלל חוזה מגביל.
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-soft border border-gray-100 overflow-hidden hover:border-accent-200 transition-all duration-300 group">
+                            <details class="group">
+                                <summary class="flex justify-between items-center p-5 cursor-pointer font-medium text-primary-800">
+                                    <div class="flex items-center">
+                                        <span class="bg-primary-100 text-primary-600 w-8 h-8 rounded-full flex items-center justify-center mr-3">
+                                            <i class="fas fa-exchange-alt"></i>
+                                        </span>
+                                        <span>האם אני יכול לשדרג או להוריד חבילה?</span>
+                                    </div>
+                                    <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 group-open:bg-accent-100 transition-colors">
+                                        <i class="fas fa-plus text-accent-500 text-sm group-open:hidden"></i>
+                                        <i class="fas fa-minus text-accent-600 text-sm hidden group-open:block"></i>
+                                    </div>
+                                </summary>
+                                <div class="p-5 pt-0 text-gray-700">
+                                    <div class="border-t border-gray-100 pt-4 mt-2">
+                                        בהחלט! אתה יכול לשדרג או להוריד חבילה בכל עת. השינוי ייכנס לתוקף מיידית, והחיוב יותאם באופן יחסי לזמן השימוש בכל חבילה.
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-soft border border-gray-100 overflow-hidden hover:border-accent-200 transition-all duration-300 group">
+                            <details class="group">
+                                <summary class="flex justify-between items-center p-5 cursor-pointer font-medium text-primary-800">
+                                    <div class="flex items-center">
+                                        <span class="bg-primary-100 text-primary-600 w-8 h-8 rounded-full flex items-center justify-center mr-3">
+                                            <i class="fas fa-dollar-sign"></i>
+                                        </span>
+                                        <span>האם יש עלויות נוספות מעבר למחיר החודשי?</span>
+                                    </div>
+                                    <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 group-open:bg-accent-100 transition-colors">
+                                        <i class="fas fa-plus text-accent-500 text-sm group-open:hidden"></i>
+                                        <i class="fas fa-minus text-accent-600 text-sm hidden group-open:block"></i>
+                                    </div>
+                                </summary>
+                                <div class="p-5 pt-0 text-gray-700">
+                                    <div class="border-t border-gray-100 pt-4 mt-2">
+                                        לא, המחיר החודשי כולל את כל התכונות המפורטות. אין עלויות נסתרות או תשלומים נוספים עבור תמיכה או עדכונים. מה שאתה רואה הוא מה שאתה משלם.
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-white rounded-xl shadow-soft border border-gray-100 overflow-hidden hover:border-accent-200 transition-all duration-300 group">
+                            <details class="group">
+                                <summary class="flex justify-between items-center p-5 cursor-pointer font-medium text-primary-800">
+                                    <div class="flex items-center">
+                                        <span class="bg-primary-100 text-primary-600 w-8 h-8 rounded-full flex items-center justify-center mr-3">
+                                            <i class="fas fa-laptop-code"></i>
+                                        </span>
+                                        <span>האם צריך ידע טכני לתפעול המערכת?</span>
+                                    </div>
+                                    <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 group-open:bg-accent-100 transition-colors">
+                                        <i class="fas fa-plus text-accent-500 text-sm group-open:hidden"></i>
+                                        <i class="fas fa-minus text-accent-600 text-sm hidden group-open:block"></i>
+                                    </div>
+                                </summary>
+                                <div class="p-5 pt-0 text-gray-700">
+                                    <div class="border-t border-gray-100 pt-4 mt-2">
+                                        לא, המערכת פשוטה לשימוש ומיועדת במיוחד לבעלי חנויות אופניים וקורקינטים. מספקים הדרכה מלאה ותמיכה שוטפת למשתמשים חדשים, ואין צורך בידע טכני מוקדם.
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-soft border border-gray-100 overflow-hidden hover:border-accent-200 transition-all duration-300 group">
+                            <details class="group">
+                                <summary class="flex justify-between items-center p-5 cursor-pointer font-medium text-primary-800">
+                                    <div class="flex items-center">
+                                        <span class="bg-primary-100 text-primary-600 w-8 h-8 rounded-full flex items-center justify-center mr-3">
+                                            <i class="fas fa-database"></i>
+                                        </span>
+                                        <span>האם אני יכול לייבא מידע ממערכת קיימת?</span>
+                                    </div>
+                                    <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 group-open:bg-accent-100 transition-colors">
+                                        <i class="fas fa-plus text-accent-500 text-sm group-open:hidden"></i>
+                                        <i class="fas fa-minus text-accent-600 text-sm hidden group-open:block"></i>
+                                    </div>
+                                </summary>
+                                <div class="p-5 pt-0 text-gray-700">
+                                    <div class="border-t border-gray-100 pt-4 mt-2">
+                                        בהחלט! אנחנו מספקים כלים לייבוא נתונים קיימים, כולל רשימות לקוחות והיסטוריית תיקונים. צוות התמיכה שלנו ילווה אותך בתהליך המעבר להבטיח שהמידע שלך יועבר בצורה חלקה ומלאה.
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-soft border border-gray-100 overflow-hidden hover:border-accent-200 transition-all duration-300 group">
+                            <details class="group">
+                                <summary class="flex justify-between items-center p-5 cursor-pointer font-medium text-primary-800">
+                                    <div class="flex items-center">
+                                        <span class="bg-primary-100 text-primary-600 w-8 h-8 rounded-full flex items-center justify-center mr-3">
+                                            <i class="fas fa-headset"></i>
+                                        </span>
+                                        <span>איך פונים לתמיכה כשצריך עזרה?</span>
+                                    </div>
+                                    <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 group-open:bg-accent-100 transition-colors">
+                                        <i class="fas fa-plus text-accent-500 text-sm group-open:hidden"></i>
+                                        <i class="fas fa-minus text-accent-600 text-sm hidden group-open:block"></i>
+                                    </div>
+                                </summary>
+                                <div class="p-5 pt-0 text-gray-700">
+                                    <div class="border-t border-gray-100 pt-4 mt-2">
+                                        תמיכת הלקוחות שלנו זמינה דרך צ'אט בזמן אמת, טלפון ודוא"ל בין השעות 8:00-20:00 בימים א'-ה' ו-8:00-14:00 בימי שישי. לקוחות בתוכנית פרו נהנים מזמני תגובה מהירים יותר וגישה לתמיכה מועדפת.
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-10 text-center">
+                    <p class="text-gray-600 mb-4">עדיין יש לך שאלות? אנחנו כאן בשבילך!</p>
+                    <a href="#contact" class="inline-flex items-center text-accent-600 font-medium hover:text-accent-700 transition-all">
+                        <span>צור קשר עם צוות התמיכה שלנו</span>
+                        <i class="fas fa-arrow-left mr-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- סקציית השארת פרטים -->
+    <section id="contact" class="py-16 md:py-24 bg-white relative overflow-hidden">
+        <!-- צורות רקע מופשטות -->
+        <div class="absolute top-20 right-0 w-96 h-96 bg-primary-500/5 rounded-full blur-3xl -z-10"></div>
+        <div class="absolute -bottom-10 left-20 w-80 h-80 bg-accent-500/5 rounded-full blur-3xl -z-10"></div>
+        
+        <div class="container mx-auto px-4">
+            <div class="max-w-6xl mx-auto">
+                <div class="grid md:grid-cols-5 gap-8 items-center">
+                    <!-- צד תוכן - 3 עמודות -->
+                    <div class="md:col-span-3 fade-in-up">
+                        <span class="inline-block bg-accent-100 text-accent-800 text-sm font-semibold py-1 px-4 rounded-full mb-3">צור קשר</span>
+                        <h2 class="text-3xl md:text-4xl font-bold mb-6 text-primary-900 relative">
+                            מוכנים לשדרג את ניהול <span class="text-gradient-primary">החנות שלכם?</span>
+                        </h2>
+                        <p class="text-lg text-gray-600 mb-8 max-w-2xl">
+                            השאירו פרטים ואחד מנציגי המכירות שלנו יחזור אליכם תוך 24 שעות עם התאמה אישית והצעה מיוחדת.
+                        </p>
+                        
+                        <div class="space-y-6 mb-8">
+                            <div class="flex items-start">
+                                <div class="bg-accent-100 p-3 rounded-full text-accent-700 mr-4">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-semibold mb-2 text-primary-900">התאמה אישית לעסק שלך</h3>
+                                    <p class="text-gray-600">נסביר כיצד המערכת יכולה להתאים בדיוק לצרכים הספציפיים של החנות שלך.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="bg-accent-100 p-3 rounded-full text-accent-700 mr-4">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-semibold mb-2 text-primary-900">הדגמה חיה של המערכת</h3>
+                                    <p class="text-gray-600">נתאם זמן לשיחת הדגמה אישית בה נציג את כל התכונות שיעזרו לעסק שלך.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="bg-accent-100 p-3 rounded-full text-accent-700 mr-4">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-semibold mb-2 text-primary-900">מבצעים מיוחדים למצטרפים</h3>
+                                    <p class="text-gray-600">לקוחות חדשים מקבלים הטבות מיוחדות והנחות בלעדיות.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-4 flex-wrap">
+                            <div class="flex items-center bg-primary-50 px-4 py-2 rounded-lg">
+                                <i class="fas fa-shield-alt text-primary-600 ml-2"></i>
+                                <span class="text-primary-800 font-medium">המידע שלך מאובטח</span>
+                            </div>
+                            <div class="flex items-center bg-primary-50 px-4 py-2 rounded-lg">
+                                <i class="fas fa-phone-alt text-primary-600 ml-2"></i>
+                                <span class="text-primary-800 font-medium">ללא מחויבות לרכישה</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- צד טופס - 2 עמודות -->
+                    <div class="md:col-span-2 fade-in-up">
+                        <div class="bg-white rounded-2xl shadow-hard border border-gray-100 p-8 overflow-hidden transform transition-all hover:shadow-xl relative">
+                            <!-- עיצוב רקע -->
+                            <div class="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-accent-500/5 z-0"></div>
+                            <div class="absolute top-0 left-0 w-40 h-40 bg-accent-100/20 rounded-full blur-3xl -z-10"></div>
+                            <div class="absolute bottom-0 right-0 w-40 h-40 bg-primary-100/30 rounded-full blur-3xl -z-10"></div>
+                            
+                            <div class="relative z-10">
+                                <h3 class="text-2xl font-bold mb-6 text-primary-900 text-center">השאירו פרטים ונחזור אליכם</h3>
+                                <form action="#" method="POST" class="space-y-4">
+                                    <div class="grid grid-cols-1 gap-4">
+                                        <div>
+                                            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">שם החנות</label>
+                                            <input type="text" id="name" name="name" placeholder="הכנס את שם החנות" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-all">
+                                        </div>
+                                        
+                                        <div>
+                                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">מספר טלפון</label>
+                                            <input type="tel" id="phone" name="phone" placeholder="הכנס את מספר הטלפון" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-all">
+                                        </div>
+                                        
+                                        <div>
+                                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">כתובת אימייל</label>
+                                            <input type="email" id="email" name="email" placeholder="הכנס את כתובת האימייל" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-all">
+                                        </div>
+                                        
+                                        <div>
+                                            <label for="repairs" class="block text-sm font-medium text-gray-700 mb-1">מספר תיקונים בחודש</label>
+                                            <select id="repairs" name="repairs" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-all text-gray-500">
+                                                <option value="" selected disabled>בחר אפשרות</option>
+                                                <option value="50">50</option>
+                                                <option value="50-200">50-200</option>
+                                                <option value="200-500">200-500</option>
+                                                <option value="500+">500+</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn-glow btn-primary bg-accent-500 hover:bg-accent-600 text-white font-semibold py-3 px-4 w-full rounded-lg transition-all relative overflow-hidden">
+                                        <span class="relative z-10 flex items-center justify-center">
+                                            <span>שלח פרטים ונחזור אליך</span>
+                                            <i class="fas fa-arrow-left mr-2"></i>
+                                        </span>
+                                    </button>
+                                    
+                                    <p class="text-center text-sm text-gray-500 mt-4">
+                                        בלחיצה על "שלח" אתה מסכים ל<a href="#" class="text-accent-600 hover:underline">תנאי השימוש</a> ומדיניות הפרטיות שלנו
+                                    </p>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- פוטר מודרני -->
+    <footer class="bg-gradient-to-b from-primary-800 to-primary-900 text-white overflow-hidden relative">
+        <!-- צורות רקע מופשטות - מעודכנות לשקיפות נמוכה יותר -->
+        <div class="absolute top-20 left-10 w-72 h-72 bg-primary-500/5 rounded-full blur-3xl -z-10"></div>
+        <div class="absolute bottom-20 right-10 w-80 h-80 bg-accent-500/5 rounded-full blur-3xl -z-10"></div>
+        
+        <!-- טופס הרשמה לניוזלטר - חלק עליון - שיפור ניגודיות -->
+        <div class="border-b border-white/10 py-16">
+            <div class="container mx-auto px-4">
+                <div class="max-w-5xl mx-auto text-center">
+                    <h3 class="text-2xl md:text-3xl font-bold mb-6 text-white">הצטרפו לניוזלטר <span class="text-accent-300">המקצועי שלנו</span></h3>
+                    <p class="text-white text-opacity-90 mb-8 max-w-3xl mx-auto">
+                        קבלו עדכונים, טיפים וחדשות מעולם ניהול חנויות האופניים - היו הראשונים לדעת על מבצעים ועדכוני מערכת.
+                    </p>
+                    <div class="flex flex-col md:flex-row gap-3 max-w-2xl mx-auto">
+                        <input type="email" placeholder="הזינו את כתובת האימייל שלכם" class="flex-grow py-3 px-5 rounded-lg bg-white/20 border border-white/20 text-white placeholder-white placeholder-opacity-75 focus:outline-none focus:ring-2 focus:ring-accent-500 backdrop-blur-sm">
+                        <button class="bg-accent-500 hover:bg-accent-600 text-white font-semibold py-3 px-8 rounded-lg transition-all">
+                            הרשמה לעדכונים
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- תוכן פוטר ראשי - שיפור ניגודיות -->
+        <div class="py-16 relative">
+            <!-- רקע בהיר יותר -->
+            <div class="absolute inset-0 bg-primary-700/30 backdrop-blur-sm"></div>
+            
+            <div class="container mx-auto px-4 relative z-10">
+                <div class="grid md:grid-cols-4 gap-10">
+                    <!-- לוגו ותיאור -->
+                    <div class="space-y-6">
+                        <div class="flex items-center mb-4">
+                            <span class="font-bold text-2xl text-white ml-2">BitBike</span>
+                            <span class="bg-accent-500 text-white text-xs py-1 px-2 rounded">CRM</span>
+                        </div>
+                        <p class="text-white text-opacity-90 leading-relaxed">
+                            מערכת ניהול חכמה לחנויות אופניים וקורקינטים, המאפשרת ניהול יעיל של לקוחות, תיקונים ומלאי בצורה דיגיטלית וידידותית.
+                        </p>
+                        <div class="flex items-center space-x-4 space-x-reverse">
+                            <a href="#" class="w-9 h-9 rounded-full bg-white/20 hover:bg-accent-500 flex items-center justify-center transition-colors duration-300">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="w-9 h-9 rounded-full bg-white/20 hover:bg-accent-500 flex items-center justify-center transition-colors duration-300">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="#" class="w-9 h-9 rounded-full bg-white/20 hover:bg-accent-500 flex items-center justify-center transition-colors duration-300">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                            <a href="#" class="w-9 h-9 rounded-full bg-white/20 hover:bg-accent-500 flex items-center justify-center transition-colors duration-300">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- קישורים מהירים -->
+                    <div>
+                        <h4 class="text-lg font-bold mb-5 text-white relative inline-block">
+                            <span class="relative z-10">קישורים מהירים</span>
+                            <span class="absolute bottom-0 left-0 w-full h-1 bg-accent-500 -z-0"></span>
+                        </h4>
+                        <ul class="space-y-3">
+                            <li>
+                                <a href="#features" class="text-white text-opacity-90 hover:text-accent-300 transition-colors duration-300 flex items-center">
+                                    <i class="fas fa-chevron-left mr-2 text-xs text-accent-400"></i>
+                                    תכונות
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#how-it-works" class="text-white text-opacity-90 hover:text-accent-300 transition-colors duration-300 flex items-center">
+                                    <i class="fas fa-chevron-left mr-2 text-xs text-accent-400"></i>
+                                    איך זה עובד
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#why-us" class="text-white text-opacity-90 hover:text-accent-300 transition-colors duration-300 flex items-center">
+                                    <i class="fas fa-chevron-left mr-2 text-xs text-accent-400"></i>
+                                    למה אנחנו
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#pricing" class="text-white text-opacity-90 hover:text-accent-300 transition-colors duration-300 flex items-center">
+                                    <i class="fas fa-chevron-left mr-2 text-xs text-accent-400"></i>
+                                    מחירים
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#testimonials" class="text-white text-opacity-90 hover:text-accent-300 transition-colors duration-300 flex items-center">
+                                    <i class="fas fa-chevron-left mr-2 text-xs text-accent-400"></i>
+                                    המלצות
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#faq" class="text-white text-opacity-90 hover:text-accent-300 transition-colors duration-300 flex items-center">
+                                    <i class="fas fa-chevron-left mr-2 text-xs text-accent-400"></i>
+                                    שאלות נפוצות
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- קישורי מידע -->
+                    <div>
+                        <h4 class="text-lg font-bold mb-5 text-white relative inline-block">
+                            <span class="relative z-10">מידע נוסף</span>
+                            <span class="absolute bottom-0 left-0 w-full h-1 bg-accent-500 -z-0"></span>
+                        </h4>
+                        <ul class="space-y-3">
+                            <li>
+                                <a href="#" class="text-white text-opacity-90 hover:text-accent-300 transition-colors duration-300 flex items-center">
+                                    <i class="fas fa-chevron-left mr-2 text-xs text-accent-400"></i>
+                                    אודות
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="text-white text-opacity-90 hover:text-accent-300 transition-colors duration-300 flex items-center">
+                                    <i class="fas fa-chevron-left mr-2 text-xs text-accent-400"></i>
+                                    בלוג
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="text-white text-opacity-90 hover:text-accent-300 transition-colors duration-300 flex items-center">
+                                    <i class="fas fa-chevron-left mr-2 text-xs text-accent-400"></i>
+                                    מדיניות פרטיות
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="text-white text-opacity-90 hover:text-accent-300 transition-colors duration-300 flex items-center">
+                                    <i class="fas fa-chevron-left mr-2 text-xs text-accent-400"></i>
+                                    תנאי שימוש
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="text-white text-opacity-90 hover:text-accent-300 transition-colors duration-300 flex items-center">
+                                    <i class="fas fa-chevron-left mr-2 text-xs text-accent-400"></i>
+                                    קריירה
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- צור קשר -->
+                    <div>
+                        <h4 class="text-lg font-bold mb-5 text-white relative inline-block">
+                            <span class="relative z-10">צור קשר</span>
+                            <span class="absolute bottom-0 left-0 w-full h-1 bg-accent-500 -z-0"></span>
+                        </h4>
+                        <ul class="space-y-4">
+                            <li class="flex items-start">
+                                <div class="bg-white/20 rounded-full p-2 mt-1 ml-3">
+                                    <i class="fas fa-map-marker-alt text-accent-300"></i>
+                                </div>
+                                <div>
+                                    <span class="text-white font-medium">כתובת:</span>
+                                    <p class="text-white text-opacity-90">רחוב הכל טוב, ראש העין</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <div class="bg-white/20 rounded-full p-2 mt-1 ml-3">
+                                    <i class="fas fa-phone-alt text-accent-300"></i>
+                                </div>
+                                <div>
+                                    <span class="text-white font-medium">טלפון:</span>
+                                    <p class="text-white text-opacity-90 hover:text-accent-300 transition-colors">
+                                        <a href="tel:0509611808">050-961-1808</a>
+                                    </p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <div class="bg-white/20 rounded-full p-2 mt-1 ml-3">
+                                    <i class="fas fa-envelope text-accent-300"></i>
+                                </div>
+                                <div>
+                                    <span class="text-white font-medium">אימייל:</span>
+                                    <p class="text-white text-opacity-90 hover:text-accent-300 transition-colors">
+                                        <a href="mailto:info@bitbikecrm.co.il">info@bitbikecrm.co.il</a>
+                                    </p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- מידע תחתון - שיפור ניגודיות -->
+                <div class="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center">
+                    <p class="text-white text-opacity-80 text-sm mb-4 md:mb-0">
+                        &copy; 2023-2025 BitBike-CRM. כל הזכויות שמורות.
+                    </p>
+                    <div class="flex space-x-6 space-x-reverse">
+                        <img src="assets/images/payment-visa.svg" alt="Visa" class="h-8" onerror="this.src='https://placehold.co/60x40?text=Visa'">
+                        <img src="assets/images/payment-mastercard.svg" alt="Mastercard" class="h-8" onerror="this.src='https://placehold.co/60x40?text=Mastercard'">
+                        <img src="assets/images/payment-paypal.svg" alt="PayPal" class="h-8" onerror="this.src='https://placehold.co/60x40?text=PayPal'">
+                        <img src="assets/images/payment-bit.svg" alt="Bit" class="h-8" onerror="this.src='https://placehold.co/60x40?text=Bit'">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- כפתור חזרה למעלה -->
+        <div class="absolute bottom-6 left-6">
+            <a href="#" id="backToTop" class="bg-accent-500 hover:bg-accent-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-105">
+                <i class="fas fa-arrow-up"></i>
+            </a>
+        </div>
+    </footer>
+    
+    <!-- קישור לקובץ JavaScript הראשי -->
+    <script src="assets/js/main.js"></script>
+    
+    <!-- מודל תמונה מוגדלת -->
+    <div id="imageModal" class="fixed inset-0 bg-black/90 z-[100] hidden flex items-center justify-center p-4" onclick="closeImageModal()">
+        <div class="relative max-w-5xl max-h-[90vh]">
+            <img id="modalImage" src="" alt="תמונה מוגדלת" class="max-w-full max-h-[90vh] object-contain">
+            <button class="absolute top-3 right-3 bg-accent-500 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-accent-700 transition-all" onclick="event.stopPropagation(); closeImageModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        // פונקציונליות למודל תמונה מוגדלת
+        function openImageModal(imageSrc) {
+            const modal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+            
+            modalImage.src = imageSrc;
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeImageModal() {
+            const modal = document.getElementById('imageModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+    </script>
+</body>
+</html>
